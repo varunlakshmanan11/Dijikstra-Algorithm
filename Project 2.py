@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt 
 import cv2
 
+
 empty_canvas = np.ones((500, 1200, 3))
 plt.imshow(empty_canvas)
 
@@ -49,6 +50,57 @@ cv2.polylines(empty_canvas, [clearence_hexagon], isClosed = True, thickness = 5,
 
 plt.imshow(empty_canvas)
 plt.show()
+
+action_set = [(1,0),(-1,0),(0,1),(0,-1),(1,1),(-1,1),(1,-1),(-1,-1)]
+
+def action_up(node):
+    x, y = node
+    movement_up = x , y + 1
+    return movement_up
+
+def action_down(node):
+    x,  y = node
+    movement_down = x , y - 1
+    return movement_down
+
+def action_left(node):
+    x, y = node 
+    movement_left = x - 1 , y 
+    return movement_left
+
+def action_right(node):
+    x, y = node
+    movement_right = x + 1, y
+    return movement_right
+
+def action_up_left(node):
+    x, y = node
+    movement_upleft = x - 1, y + 1
+    return movement_upleft
+
+def action_up_right(node):
+    x, y = node
+    movement_upright = x + 1, y + 1
+    return movement_upright
+
+def action_down_left(node):
+    x, y = node
+    movement_downleft = x - 1, y - 1
+    return movement_downleft
+
+def action_down_right(node):
+    x, y = node
+    movement_downright = x + 1, y - 1 
+    return movement_downright
+
+##action_set = [(1,0),(-1,0),(0,1),(0,-1),(1,1),(-1,1),(1,-1),(-1,-1)]
+#ef movement(node):
+    
+    #for action in action_set:
+        #if action
+
+    
+    
 
 
 
