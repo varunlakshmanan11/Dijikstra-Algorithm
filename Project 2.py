@@ -19,7 +19,7 @@ clearence5 = cv2.rectangle(empty_canvas, pt1 = (895,370), pt2 = (1105,455), colo
 rectangle3 = cv2.rectangle(empty_canvas, pt1 = (900,50), pt2 = (1100,125), color = (0 , 0,  0), thickness = -1)
 rectangle4 = cv2.rectangle(empty_canvas, pt1 = (1020,125), pt2 = (1100,450), color = (0 , 0,  0), thickness = -1)
 rectangle5 = cv2.rectangle(empty_canvas, pt1 = (900,375), pt2 = (1100,450), color = (0 , 0,  0), thickness = -1)
-rectangle6 = cv2.rectangle(empty_canvas, pt1 = (5,5), pt2 = (1195,1200), color = (0 , 255,  0), thickness = 5)
+rectangle6 = cv2.rectangle(empty_canvas, pt1 = (5,5), pt2 = (1200,1195), color = (0 , 255,  0), thickness = 5)
 
 hexagon = np.array([[500, 175],
                     [650, 100],
@@ -52,6 +52,7 @@ cv2.polylines(empty_canvas, [clearence_hexagon], isClosed = True, thickness = 5,
 plt.imshow(empty_canvas)
 plt.show()
 
+empty_canvas = np.array(empty_canvas)
 action_set = [(1,0),(-1,0),(0,1),(0,-1),(1,1),(-1,1),(1,-1),(-1,-1)]
 
 def action_up(node):
@@ -101,7 +102,7 @@ def action_down_right(node):
     n_x, n_y = movement_downright
     return (n_x, n_y)
 
-def possible_nodes(node):
+def possible_nodes(node,empty_canvas):
     possible_nodes = {}
     action_set = {action_up: 1,
                   action_down: 1,
@@ -113,23 +114,25 @@ def possible_nodes(node):
                   action_down_right: 1.4}
     
     
-    empty_canvas = np.array(empty_canvas)
     rows, columns, _ = empty_canvas.shape
     x, y = node
-    for y in rows:
-        for x in columns:
-            node = (x,y)
-            if np.all(empty_canvas[x,y] == [1, 1, 1]):
-                next_nodes = []
-                for movement, cost in action_set.items():
-                    next_node = movement
-                    next_cost = cost
-                    if np.sll(empty_canvas[x,y] == [1, 1, 1]):
-                        next_nodes.append(next_node, next_cost)
-                
-                possible_nodes[node] = next_nodes
+    next_nodes = []
+    for movement, cost in action_set.items():
+        next_node = movement(node)
+        next_x,next_y = next_node
+        next_cost = cost
+        if 0 <= next_x < columns and 0 <= next_y < rows and np.all(empty_canvas[next_y,next_x] == [1, 1, 1]):
+            if next_node not in next_nodes:
+                next_nodes.append((next_node, next_cost))
     
+    possible_nodes[node] = next_nodes
+
     return possible_nodes
+
+#def dijkstra_path_planning(start_node,end_node):
+    #openlist = []
+    #closedlist = []
+    
                 
              
     
