@@ -6,11 +6,11 @@ import cv2
 empty_canvas = np.ones((500, 1200, 3))
 plt.imshow(empty_canvas)
 
-rectangle1 = cv2.rectangle(empty_canvas, pt1 = (100,0), pt2 = (175,400), color = (0 , 0,  0), thickness = -1)
+rectangle1 = cv2.rectangle(empty_canvas, pt1 = (100,500), pt2 = (175,100), color = (0 , 0,  0), thickness = -1)
 plt.imshow(empty_canvas)
-clearence1 = cv2.rectangle(empty_canvas, pt1 = (95,0), pt2 = (180,405), color = (0 , 255,  0), thickness = 5)
-rectangle2 = cv2.rectangle(empty_canvas, pt1 = (275,100), pt2 = (350,500), color = (0 , 0,  0), thickness = -1)
-clearence1 = cv2.rectangle(empty_canvas, pt1 = (270,95), pt2 = (355,500), color = (0 , 255,  0), thickness = 5)
+clearence1 = cv2.rectangle(empty_canvas, pt1 = (95,500), pt2 = (180,95), color = (0 , 255,  0), thickness = 5)
+rectangle2 = cv2.rectangle(empty_canvas, pt1 = (275,0), pt2 = (350,400), color = (0 , 0,  0), thickness = -1)
+clearence1 = cv2.rectangle(empty_canvas, pt1 = (270,0), pt2 = (355,405), color = (0 , 255,  0), thickness = 5)
 
 clearence3 = cv2.rectangle(empty_canvas, pt1 = (895,45), pt2 = (1105,130), color = (0 , 255,  0), thickness = -1)
 clearence4 = cv2.rectangle(empty_canvas, pt1 = (1015,125), pt2 = (1105,450), color = (0 , 255,  0), thickness = -1)
@@ -19,6 +19,7 @@ clearence5 = cv2.rectangle(empty_canvas, pt1 = (895,370), pt2 = (1105,455), colo
 rectangle3 = cv2.rectangle(empty_canvas, pt1 = (900,50), pt2 = (1100,125), color = (0 , 0,  0), thickness = -1)
 rectangle4 = cv2.rectangle(empty_canvas, pt1 = (1020,125), pt2 = (1100,450), color = (0 , 0,  0), thickness = -1)
 rectangle5 = cv2.rectangle(empty_canvas, pt1 = (900,375), pt2 = (1100,450), color = (0 , 0,  0), thickness = -1)
+rectangle6 = cv2.rectangle(empty_canvas, pt1 = (5,5), pt2 = (1195,1200), color = (0 , 255,  0), thickness = 5)
 
 hexagon = np.array([[500, 175],
                     [650, 100],
@@ -55,52 +56,81 @@ action_set = [(1,0),(-1,0),(0,1),(0,-1),(1,1),(-1,1),(1,-1),(-1,-1)]
 
 def action_up(node):
     x, y = node
-    movement_up = x , y + 1
-    return movement_up
+    movement_up = x , y - 1
+    n_x, n_y = movement_up
+    return (n_x, n_y) 
 
 def action_down(node):
     x,  y = node
-    movement_down = x , y - 1
-    return movement_down
+    movement_down = x , y + 1
+    n_x, n_y = movement_down
+    return (n_x, n_y)
 
 def action_left(node):
     x, y = node 
     movement_left = x - 1 , y 
-    return movement_left
-
+    n_x, n_y = movement_left
+    return (n_x, n_y)
 def action_right(node):
     x, y = node
     movement_right = x + 1, y
-    return movement_right
+    n_x, n_y = movement_right
+    return (n_x, n_y)
 
 def action_up_left(node):
     x, y = node
-    movement_upleft = x - 1, y + 1
-    return movement_upleft
+    movement_upleft = x - 1, y - 1
+    n_x, n_y = movement_upleft
+    return (n_x, n_y)
 
 def action_up_right(node):
     x, y = node
-    movement_upright = x + 1, y + 1
-    return movement_upright
+    movement_upright = x + 1, y - 1
+    n_x, n_y = movement_upright
+    return (n_x, n_y)
 
 def action_down_left(node):
     x, y = node
-    movement_downleft = x - 1, y - 1
-    return movement_downleft
+    movement_downleft = x - 1, y + 1
+    n_x, n_y = movement_downleft
+    return (n_x, n_y)
 
 def action_down_right(node):
     x, y = node
-    movement_downright = x + 1, y - 1 
-    return movement_downright
+    movement_downright = x + 1, y + 1 
+    n_x, n_y = movement_downright
+    return (n_x, n_y)
 
-##action_set = [(1,0),(-1,0),(0,1),(0,-1),(1,1),(-1,1),(1,-1),(-1,-1)]
-#ef movement(node):
+def possible_nodes(node):
+    possible_nodes = {}
+    action_set = {action_up: 1,
+                  action_down: 1,
+                  action_left: 1,
+                  action_right: 1 ,
+                  action_up_left: 1.4,
+                  action_up_right: 1.4,
+                  action_down_left: 1.4,
+                  action_down_right: 1.4}
     
-    #for action in action_set:
-        #if action
-
     
+    empty_canvas = np.array(empty_canvas)
+    rows, columns, _ = empty_canvas.shape
+    x, y = node
+    for y in rows:
+        for x in columns:
+            node = (x,y)
+            if np.all(empty_canvas[x,y] == [1, 1, 1]):
+                next_nodes = []
+                for movement, cost in action_set.items():
+                    next_node = movement
+                    next_cost = cost
+                    if np.sll(empty_canvas[x,y] == [1, 1, 1]):
+                        next_nodes.append(next_node, next_cost)
+                
+                possible_nodes[node] = next_nodes
     
-
-
-
+    return possible_nodes
+                
+             
+    
+        
