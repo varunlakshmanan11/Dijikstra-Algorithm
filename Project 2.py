@@ -5,54 +5,86 @@ from queue import PriorityQueue
 import cv2
 import time
 
-# Creating a empty space for canvas
+# Creating a emptyspace for drawing graph
 Graph_map = np.ones((500, 1200, 3), dtype=np.uint8)*255
 
-# Drawing rectangles on the white space with clearence.
-cv2.rectangle(Graph_map, pt1 = (100,500), pt2 = (175,100), color = (0 , 0,  0), thickness = -1)
-cv2.rectangle(Graph_map, pt1 = (95,500), pt2 = (180,95), color = (0 , 255,  0), thickness = 5)
-cv2.rectangle(Graph_map, pt1 = (275,0), pt2 = (350,400), color = (0 , 0,  0), thickness = -1)
-cv2.rectangle(Graph_map, pt1 = (270,0), pt2 = (355,405), color = (0 , 255,  0), thickness = 5)
-cv2.rectangle(Graph_map, pt1 = (895,45), pt2 = (1105,130), color = (0 , 255,  0), thickness = -1)
-cv2.rectangle(Graph_map, pt1 = (1015,125), pt2 = (1105,450), color = (0 , 255,  0), thickness = -1)
-cv2.rectangle(Graph_map, pt1 = (895,370), pt2 = (1105,455), color = (0 , 255,  0), thickness = -1)
-cv2.rectangle(Graph_map, pt1 = (900,50), pt2 = (1100,125), color = (0 , 0,  0), thickness = -1)
-cv2.rectangle(Graph_map, pt1 = (1020,125), pt2 = (1100,450), color = (0 , 0,  0), thickness = -1)
-cv2.rectangle(Graph_map, pt1 = (900,375), pt2 = (1100,450), color = (0 , 0,  0), thickness = -1)
-cv2.rectangle(Graph_map, pt1 = (0,0), pt2 = (1200,500), color = (0 , 255,  0), thickness = 5)
+# Center of the hexagon.
+center_h = (650,250)
+# Side of hexagon.
+side = 150
+# radius from thhe center.
+r = np.cos(np.pi/6) * side
+# Center Coordinates of hexagon.
+c_x,c_y = center_h
 
-# Drawing Hexagon on the White Space by putting the coordinates into a array. 
-hexagon = np.array([[500, 175],
-                    [650, 100],
-                    [800, 175], 
-                    [800, 325], 
-                    [650, 400],
-                    [500, 325]
+angles = np.linspace(np.pi / 2, 2 * np.pi + np.pi / 2, 7)[:-1]
+v_x = c_x + r * np.cos(angles) # x_coordinate_vertices.
+v_y = c_y + r * np.sin(angles) # y_coordinate_vertices.
+radius_clearance = r + 5 # Clearance from radius.
+v_x_c = c_x + radius_clearance * np.cos(angles) # x_coordinate_clearance_vertices.
+v_y_c= c_y + radius_clearance * np.sin(angles) # y_coordinate_clearance_vertices.
+vertices = np.vstack((v_x, v_y)).T # storing x and y vertices in a tuple.
+clearance_verticies = np.vstack((v_x_c, v_y_c)).T # storing clearance x and y vertices.
 
-                   ])
-print(hexagon.shape)
-hexagon = hexagon.reshape(-1,1,2)
-hexagon
+# Drawaing objects on the empty_space by iterating in for loop using half plane equations.
+for x in range(1200):
+    for y in range(500):
+        y_transform = 500 - y
 
-# Drawing Clearance matrix for Hexagon
-clearence_hexagon = np.array([[495, 170],
-                    [645, 95],
-                    [805, 170], 
-                    [805, 330], 
-                    [655, 405],
-                    [495, 330]
+        # Wall clearance.
+        if (x <= 5 or x >= 1195 or y_transform <= 5 or y_transform >= 495):
+            Graph_map[y,x] = [0,255,0]
+        
+        # object 1(rectangle)
+        if (x >= 100 and x <= 175  and y_transform >= 100 and y_transform <= 500 ):
+            Graph_map[y,x] = [0,0,0]
+        elif (x >= 100 - 5  and x <= 175 + 5 and y_transform >= 100 - 5 and y_transform <= 500 + 5):
+            Graph_map[y,x] = [0, 255, 0]
+        
+        # object 2(rectangle)
+        if (x >= 275 and x <= 350 and y_transform >= 0 and y_transform <= 400):
+            Graph_map[y,x] = [0,0,0]
+        elif(x >= 275 - 5 and x <= 350 + 5 and y_transform >= 0 - 5 and y_transform <= 400 + 5):
+             Graph_map[y,x] = [0, 255, 0] 
 
-                   ])
+        # object 3 (combination of 3 rectangles)
+        if (x >= 1020 - 5 and x <= 1100 + 5 and y_transform>= 50 - 5  and y_transform <= 450 + 5):
+            Graph_map[y,x] = [0,255,0]
+        elif (x >= 900 - 5  and x <= 1100 + 5  and y_transform >= 50 - 5 and y_transform <= 125 + 5):
+            Graph_map[y,x] = [0, 255, 0]
+        elif (x >= 900 - 5 and x <= 1100 + 5 and y_transform >= 375 - 5 and y_transform <= 450 + 5):
+            Graph_map[y,x] = [0,255,0]
+        
+        if (x >= 1020 and x <= 1100 and y_transform>= 50  and y_transform <= 450 ):
+            Graph_map[y,x] = [0,0,0]
+        elif (x >= 900 and x <= 1100  and y_transform >= 50 and y_transform <= 125):
+            Graph_map[y,x] = [0,0,0]
+        elif (x >= 900 and x <= 1100 and y_transform >= 375 and y_transform <= 450):
+            Graph_map[y,x] = [0,0,0]
+        
+# object 4 (hexagon)
+def hexagon(x, y, vertices): # Defining a function to calucalate cross product of vertices inside hexagon.
+    result = np.zeros(x.shape, dtype=bool)
+    num_vertices = len(vertices)
+    for i in range(num_vertices):
+        j = (i + 1) % num_vertices
+        cross_product = (vertices[j, 1] - vertices[i, 1]) * (x - vertices[i, 0]) - (vertices[j, 0] - vertices[i, 0]) * (y - vertices[i, 1])
+        result |= cross_product > 0
+    return ~result
 
-clearence_hexagon = clearence_hexagon.reshape(-1,1,2)
-clearence_hexagon
 
-# Using OpenCV funtions to draw the hexagon and its clearance.
-cv2.polylines(Graph_map, [hexagon], isClosed = True, thickness = 4, color = (0, 0, 0))
-cv2.fillPoly(Graph_map, [hexagon], (0,0,0))
-cv2.polylines(Graph_map, [clearence_hexagon], isClosed = True, thickness = 5, color = (0, 255, 0))
-# Flipping the graph to match the coordinates required.
-Graph_map = cv2.flip(Graph_map, flipCode = 0)
+x, y = np.meshgrid(np.arange(1200), np.arange(500))
+
+hexagon_original = hexagon(x, y, vertices)
+hexagon_clearance = hexagon(x, y,clearance_verticies) & ~hexagon_original
+
+# Drawing hexagon and its clearance on the graph_map.
+Graph_map[hexagon_clearance] = [0, 255, 0]
+Graph_map[hexagon_original] = [0, 0, 0]
+
+
+plt.imshow(cv2.cvtColor(Graph_map, cv2.COLOR_BGR2RGB))
+plt.show()
 
 # Video Writer is initialized.
 output_write = cv2.VideoWriter_fourcc(*'mp4v')
@@ -141,12 +173,12 @@ def dijkstra_path_planning(start_node,end_node):
     cost_list = {start_node:0} # Cost is stored in each iteration.
     closedlist = set() # Defining closedlist to keep track of explored nodes.
     openlist = PriorityQueue() # openlist contains node to be explored.
-    openlist.put((0, start_node)) # Adding initial node into the open list.
+    openlist.put((start_node, 0)) # Adding initial node into the open list.
     canvas_visualization = np.copy(Graph_map) # copying the graph map for visualization.
     step_count = 0 
     # While loop to perform the tasks of dijkstra's algorithm 
     while not openlist.empty():
-        current_cost, current_node = openlist.get() # Getting Current cost and the current node from the openlist.
+        current_node, current_cost = openlist.get() # Getting Current cost and the current node from the openlist.
         closedlist.add(current_node) # Adding current node to the closed list.
         possible_states = possible_nodes(current_node, Graph_map) # calling function to get nodes to explore.
         # Checking whether current_node = goal_node, if the condition satisfies backtracking.
