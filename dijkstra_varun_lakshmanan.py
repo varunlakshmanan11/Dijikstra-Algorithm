@@ -1,11 +1,11 @@
-# Importing Necessary libraries
+# Importing Necessary libraries.
 import numpy as np
 import matplotlib.pyplot as plt 
 from queue import PriorityQueue
 import cv2
 import time
 
-# Creating a emptyspace for drawing graph
+# Creating a empty space for drawing graph.
 Graph_map = np.ones((500, 1200, 3), dtype=np.uint8)*255
 
 # Center of the hexagon.
@@ -81,10 +81,6 @@ hexagon_clearance = hexagon(x, y,clearance_verticies) & ~hexagon_original
 # Drawing hexagon and its clearance on the graph_map.
 Graph_map[hexagon_clearance] = [0, 255, 0]
 Graph_map[hexagon_original] = [0, 0, 0]
-
-
-plt.imshow(cv2.cvtColor(Graph_map, cv2.COLOR_BGR2RGB))
-plt.show()
 
 # Video Writer is initialized.
 output_write = cv2.VideoWriter_fourcc(*'mp4v')
@@ -174,7 +170,7 @@ def dijkstra_path_planning(start_node,end_node):
     closedlist = set() # Defining closedlist to keep track of explored nodes.
     openlist = PriorityQueue() # openlist contains node to be explored.
     openlist.put((start_node, 0)) # Adding initial node into the open list.
-    canvas_visualization = np.copy(Graph_map) # copying the graph map for visualization.
+    map_visualization = np.copy(Graph_map) # copying the graph map for visualization.
     step_count = 0 
     # While loop to perform the tasks of dijkstra's algorithm 
     while not openlist.empty():
@@ -183,9 +179,9 @@ def dijkstra_path_planning(start_node,end_node):
         possible_states = possible_nodes(current_node, Graph_map) # calling function to get nodes to explore.
         # Checking whether current_node = goal_node, if the condition satisfies backtracking.
         if current_node == end_node:
-            final_path = dijkstra_backtracking(parent, start_node, end_node, canvas_visualization, step_count) # Retruning the path
+            final_path = dijkstra_backtracking(parent, start_node, end_node, map_visualization, step_count) # Retruning the path
             for _ in range(30):
-                out.write(canvas_visualization)
+                out.write(map_visualization)
             break
         # For loop to explore the possible nodes.
         for cost, new_node in possible_states:
@@ -197,16 +193,16 @@ def dijkstra_path_planning(start_node,end_node):
                     new_cost = cost_to_come
                     openlist.put((new_node, new_cost))
                     # Visualizing Node Exploration and writing the frames to the video.
-                    cv2.circle(canvas_visualization, new_node, 2, (255, 0, 0), -1)
+                    cv2.circle(map_visualization, new_node, 2, (255, 0, 0), -1)
                     if step_count%1500 == 0:
-                        out.write(canvas_visualization)
+                        out.write(map_visualization)
                     step_count += 1
         
     out.release() 
     return None
 
 # Defining function for backtracking to find path.
-def dijkstra_backtracking(parent, start_node, end_node, canvas_visualization, step_count):
+def dijkstra_backtracking(parent, start_node, end_node, map_visualization, step_count):
     path = [end_node] # Adding end node to the path
     while end_node != start_node: # If the end node is not equal to start_node, parent of the end_node is added to path and continues.
         path.append(parent[end_node])
@@ -214,9 +210,9 @@ def dijkstra_backtracking(parent, start_node, end_node, canvas_visualization, st
     path.reverse()
     # Visualizing Backtracking
     for j in range(1, len(path)):
-        cv2.line(canvas_visualization, path[j - 1], path[j], (0, 0, 255), thickness=2) # Drawing lines to explore the path.
+        cv2.line(map_visualization, path[j - 1], path[j], (0, 0, 255), thickness=2) # Drawing lines to explore the path.
         if step_count % 15 == 0:
-            out.write(canvas_visualization)
+            out.write(map_visualization)
         step_count +=1
     return path
 
@@ -239,12 +235,15 @@ x_initial, y_initial = user_input("Enter Initial Node as (x y): ", Graph_map) # 
 x_goal, y_goal = user_input("Enter goal Node as (x y): ", Graph_map) # Getting goal coordinates by calling the function.
     
 node_initial = (x_initial, y_initial)
+print(f'initial_node : {node_initial}')
 node_goal = (x_goal, y_goal)
+print(f'Goal_node : {node_goal}')
+
 
 start_time = time.time()   # Starting to check the runtime.
 path = dijkstra_path_planning(node_initial, node_goal)
 end_time = time.time()    # end of runtime
-print(f'Runtime : {end_time-start_time}') # Printing the Runtime.
+print(f'Runtime : {end_time-start_time}, seconds') # Printing the Runtime.
                 
              
     
