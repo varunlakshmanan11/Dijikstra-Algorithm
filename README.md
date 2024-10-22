@@ -14,9 +14,8 @@ Instructions to run the code:
 - The output video file will show the node exploration and the optimal
 path.
 - The nodes i used are given below:
-node_initial = 20 20
-node_goal = 1180 480
-The y coordinate will flip to match the required origin.
+    - node_initial = 20 20
+    - node_goal = 1180 480
+- The y coordinate will flip to match the required origin.
 - The GitHub repository link is given below:
 repository link - https://github.com/varunlakshmanan11/Project_2
-https://github.com/varunlakshmanan11/Project_2.git
